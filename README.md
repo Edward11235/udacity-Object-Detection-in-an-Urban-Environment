@@ -199,7 +199,7 @@ python inference_video.py --labelmap_path label_map.pbtxt --model_path experimen
 
 
 
-python inference_video.py --labelmap_path label_map.pbtxt --model_path experiments/experiment_2/exported/saved_model --tf_record_path data/waymo/test/segment-12012663867578114640_820_000_840_000_with_camera_labels.tfrecord --config_path experiments/experiment_2/pipeline_new.config --output_path animation_3.gif
+python inference_video.py --labelmap_path label_map.pbtxt --model_path experiments/experiment_1/exported/saved_model --tf_record_path data/waymo/test/segment-12012663867578114640_820_000_840_000_with_camera_labels.tfrecord --config_path experiments/experiment_1/pipeline_new.config --output_path animation.gif
 ```
 
 
@@ -238,11 +238,14 @@ Also, I saw some images that were taken in the night. I think we can used data a
 
 #### Cross validation
 This section should detail the cross validation strategy and justify your approach.
-As I wrote in create_split.py 
+As I wrote in create_split.py, I put 85% of data into training set and 15% remaining data into test set. This is good balance between training of validation, and it works well.
 
 ### Training
 #### Reference experiment
 This section should detail the results of the reference experiment. It should includes training metrics and a detailed explanation of the algorithm's performances.
+As shown in the gif, the resulting model is prerry well in terms of detecting cars. However, one weakness is that it has many repetitive bounding boxes for one car. Nevertheless, I think this is not a big deal since I can use non-maximum suppression techniques to deal with it.
+Speaking of training metrics, to be honest, I used workspace and it's hard to use vscode and firefox browser to check tensorboard at the same time. So I only checked tensorboard once a while. But, as far as I saw, the classification loss reached a level of about 0.15 and the localization loss reached a level of about 0.1. The normalized total loss was about 0.06 (I actually don't know why total loss was less than classification loss and localization loss). For regularized loss, the training and evalution loss decrease at the same time and there is no signicaiton overfittting. So, overall, it's nice.
 
 #### Improve on the reference
 This section should highlight the different strategies you adopted to improve your model. It should contain relevant figures and details of your findings.
+To improve the model, I first added grey-scale augmentation to pipeline.config as illustrated in Explore augmentations.ipynb. Then, I increased warm up steps to 100. Afterwards, I can tell there's an improvmenet since more cars were recognized in the gif, but it's not a signification improvement. Also, after increasing warm up steps, the time for trains was longer.
