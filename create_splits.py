@@ -30,7 +30,7 @@ def split(data_dir):
     np.random.shuffle(all_files)
     
     source_len = int(len(all_files))
-    train_FileNames, val_FileNames = np.split(np.array(all_files),[int(source_len*0.85)])
+    train_FileNames, val_FileNames = np.split(np.array(all_files),[int(source_len*0.8)])
     
     train_FileNames = [src+'/'+ name for name in train_FileNames.tolist()]
     val_FileNames = [src+'/' + name for name in val_FileNames.tolist()]
@@ -43,60 +43,10 @@ def split(data_dir):
     
 if __name__ == "__main__": 
     parser = argparse.ArgumentParser(description='Split data into training / validation / testing')
-    parser.add_argument('--data_dir', required=True,
+    parser.add_argument('--data-dir', required=True,
                         help='data directory')
     args = parser.parse_args()
 
     logger = get_module_logger(__name__)
     logger.info('Creating splits...')
     split(args.data_dir)
-    
-    
-   paths = glob.glob('data/images/*')
-
-    # mapping to access data faster
-    gtdic = {}
-    for gt in ground_truth:
-        gtdic[gt['filename']] = gt
-
-    # color mapping of classes
-    colormap = {1: [1, 0, 0], 2: [0, 1, 0], 4: [0, 0, 1]}
-
-    f, ax = plt.subplots(4, 5, figsize=(20, 10))
-    for i in range(20):
-        x = i % 4
-        y = i % 5
-
-        filename = os.path.basename(paths[i])
-        img = Image.open(paths[i])
-        ax[x, y].imshow(img)
-
-        bboxes = gtdic[filename]['boxes']
-        classes = gtdic[filename]['classes']
-        for cl, bb in zip(classes, bboxes):
-            y1, x1, y2, x2 = bb
-            rec = Rectangle((x1, y1), x2- x1, y2-y1, facecolor='none', 
-                            edgecolor=colormap[cl])
-            ax[x, y].add_patch(rec)
-        ax[x ,y].axis('off')
-    plt.tight_layout()
-    plt.show()
-    
-    
-    
-    color_map = {1: 'red', 2: 'blue', 4: 'green'}
-    
-    
-        fig, ax = plt.subplots() 
-        im = batch["image"].numpy()
-        ax.imshow(im)
-    
-        # draw bounding boxes and add color to different class labels
-        for coord, label in zip(batch["groundtruth_boxes"].numpy(), batch["groundtruth_classes"].numpy()):
-            xy = (coord[1]*im.shape[1], coord[0]*im.shape[0])
-            #taken from class notes
-            width = (coord[3] - coord[1])*im.shape[1]
-            height = (coord[2] - coord[0])*im.shape[0]
-            rec = patches.Rectangle(xy, width, height, linewidth=1, edgecolor=color_map[label], facecolor='none')
-            ax.add_patch(rec)
-        plt.axis("off")

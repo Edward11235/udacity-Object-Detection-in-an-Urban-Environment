@@ -71,13 +71,6 @@ In the classroom workspace, every library and package should already be installe
 
 
 
-
-
-
-
-
-
-
 ## Instructions
 
 ### Exploratory Data Analysis
@@ -97,13 +90,6 @@ Use the following command to run the script once your function is implemented:
 python create_splits.py --data-dir /home/workspace/data
 ```
 
-
-
-
-
-
-
-
 ### Edit the config file
 
 Now you are ready for training. As we explain during the course, the Tf Object Detection API relies on **config files**. The config that we will use for this project is `pipeline.config`, which is the config for a SSD Resnet 50 640x640 model. You can learn more about the Single Shot Detector [here](https://arxiv.org/pdf/1512.02325.pdf).
@@ -112,15 +98,9 @@ First, let's download the [pretrained model](http://download.tensorflow.org/mode
 
 We need to edit the config files to change the location of the training and validation files, as well as the location of the label_map file, pretrained weights. We also need to adjust the batch size. To do so, run the following:
 ```
-python edit_config.py --train_dir /home/workspace/data/train/ --eval_dir /home/workspace/data/val/ --batch_size 2 --checkpoint /home/workspace/experiments/pretrained_model/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8/checkpoint/ckpt-0 --label_map /home/workspace/experiments/label_map.pbtxt
+python edit_config.py --train_dir /home/workspace/data/waymo/train/ --eval_dir /home/workspace/data/waymo/val/ --batch_size 2 --checkpoint /home/workspace/experiments/pretrained_model/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8/checkpoint/ckpt-0 --label_map /home/workspace/experiments/label_map.pbtxt
 ```
 A new config file has been created, `pipeline_new.config`.
-
-
-
-
-
-
 
 
 ### Training
@@ -128,32 +108,23 @@ A new config file has been created, `pipeline_new.config`.
 You will now launch your very first experiment with the Tensorflow object detection API. Move the `pipeline_new.config` to the `/home/workspace/experiments/reference` folder. Now launch the training process:
 * a training process:
 ```
-python experiments/model_main_tf2.py --model_dir=experiments/reference/ --pipeline_config_path=experiments/reference/pipeline_new.config
-
-
 python experiments/model_main_tf2.py --model_dir=experiments/experiment_1 --pipeline_config_path=experiments/experiment_1/pipeline_new.config
 
+
+python experiments/model_main_tf2.py --model_dir=experiments/experiment_3 --pipeline_config_path=experiments/experiment_3/pipeline_new.config
 ```
 Once the training is finished, launch the evaluation process:
 * an evaluation process:
 ```
 python experiments/model_main_tf2.py --model_dir=experiments/reference/ --pipeline_config_path=experiments/reference/pipeline_new.config --checkpoint_dir=experiments/reference/
 
-python experiments/model_main_tf2.py --model_dir=experiments/experiment_1/ --pipeline_config_path=experiments/experiment_1/pipeline_new.config --checkpoint_dir=experiments/experiment_1
+python experiments/model_main_tf2.py --model_dir=experiments/experiment_2/ --pipeline_config_path=experiments/experiment_2/pipeline_new.config --checkpoint_dir=experiments/experiment_2
 ```
 
 **Note**: Both processes will display some Tensorflow warnings, which can be ignored. You may have to kill the evaluation script manually using
 `CTRL+C`.
 
-To monitor the training, you can launch a tensorboard instance by running `python -m tensorboard.main --logdir experiments/reference/`. You will report your findings in the writeup.
-
-
-
-
-
-
-
-
+To monitor the training, you can launch a tensorboard instance by running `python -m tensorboard.main --logdir experiments/experiment_2/`. You will report your findings in the writeup.
 
 
 
@@ -177,29 +148,14 @@ Keep in mind that the following are also available:
 Modify the arguments of the following function to adjust it to your models:
 
 ```
-python experiments/exporter_main_v2.py --input_type image_tensor --pipeline_config_path experiments/reference/pipeline_new.config --trained_checkpoint_dir experiments/reference/ --output_directory experiments/reference/exported/
-
-
-python experiments/exporter_main_v2.py --input_type image_tensor --pipeline_config_path experiments/experiment_1/pipeline_new.config --trained_checkpoint_dir experiments/experiment_1/ --output_directory experiments/experiment_1/exported/
+python experiments/exporter_main_v2.py --input_type image_tensor --pipeline_config_path experiments/experiment_2/pipeline_new.config --trained_checkpoint_dir experiments/experiment_2/ --output_directory experiments/experiment_2/exported/
 ```
 
 This should create a new folder `experiments/reference/exported/saved_model`. You can read more about the Tensorflow SavedModel format [here](https://www.tensorflow.org/guide/saved_model).
 
-
-
-
-
-
 Finally, you can create a video of your model's inferences for any tf record file. To do so, run the following command (modify it to your files):
 ```
-python inference_video.py --labelmap_path label_map.pbtxt --model_path experiments/reference/exported/saved_model --tf_record_path data/waymo/test/segment-12200383401366682847_2552_140_2572_140_with_camera_labels.tfrecord --config_path experiments/reference/pipeline_new.config --output_path animation.gif
-
-
-python inference_video.py --labelmap_path label_map.pbtxt --model_path experiments/reference/exported/saved_model --tf_record_path data/waymo/test/segment-12012663867578114640_820_000_840_000_with_camera_labels.tfrecord --config_path experiments/reference/pipeline_new.config --output_path animation_2.gif
-
-
-
-python inference_video.py --labelmap_path label_map.pbtxt --model_path experiments/experiment_1/exported/saved_model --tf_record_path data/waymo/test/segment-12012663867578114640_820_000_840_000_with_camera_labels.tfrecord --config_path experiments/experiment_1/pipeline_new.config --output_path animation.gif
+python inference_video.py --labelmap_path label_map.pbtxt --model_path experiments/experiment_2/exported/saved_model --tf_record_path data/waymo/test/segment-12012663867578114640_820_000_840_000_with_camera_labels.tfrecord --config_path experiments/experiment_2/pipeline_new.config --output_path experiment_2_animation.gif
 ```
 
 
